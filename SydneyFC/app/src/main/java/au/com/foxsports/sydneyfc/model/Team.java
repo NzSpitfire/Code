@@ -1,20 +1,14 @@
 package au.com.foxsports.sydneyfc.model;
 
 import com.google.gson.annotations.SerializedName;
+import com.google.gson.annotations.Expose;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
 /**
  * Created by bclark on 22/02/17.
  */
-
-
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
 
 public class Team {
     private List<Player> playersList;

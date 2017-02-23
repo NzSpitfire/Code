@@ -41,10 +41,13 @@ public class DetailActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Bundle bundle = getIntent().getExtras();
         showLoadiDialog();
         setupUI();
+        requestPlayerDetails();
+    }
 
+    private void requestPlayerDetails(){
+        Bundle bundle = getIntent().getExtras();
         Callback callback = new Callback<Player>() {
             @Override
             public void onResponse(Call<Player> call, Response<Player> response) {
@@ -56,8 +59,13 @@ public class DetailActivity extends AppCompatActivity {
                 Log.e(DetailActivity.TAG, t.toString());
             }
         };
-        controller = new DetailController(bundle,callback);
-
+        controller = new DetailController(bundle);
+        if(controller.isNetworkAvailable(getApplicationContext())){
+            controller.doApiCall(callback);
+        }
+        else{
+            showErrorMessage("Network Error!","There was an issue connecting to the network, Please check your network settings.");
+        }
     }
 
 
@@ -71,7 +79,7 @@ public class DetailActivity extends AppCompatActivity {
             setupRecyclerView();
         }
         else{
-            showErrorMessage();
+            showErrorMessage("Missing Player PlayerStatistics", "No PlayerStatistics were found for this player.");
         }
     }
 
@@ -108,17 +116,17 @@ public class DetailActivity extends AppCompatActivity {
     private void showLoadiDialog(){
         loadingDialog = new ProgressDialog(this);
         loadingDialog.setMessage("Loading..");
-        loadingDialog.setTitle("Getting Player PlayerStatistics");
+        loadingDialog.setTitle("Getting Player Player Statistics");
         loadingDialog.setIndeterminate(false);
         loadingDialog.setCancelable(true);
         loadingDialog.show();
     }
 
-    private void showErrorMessage(){
+    private void showErrorMessage(String title, String message){
         AlertDialog alertDialog = new AlertDialog.Builder(this).create();
-        alertDialog.setTitle("Missing Player PlayerStatistics");
-        alertDialog.setMessage("No PlayerStatistics were found for this player.");
-        alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+        alertDialog.setTitle(title);
+        alertDialog.setMessage(message);
+        alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "OK",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();

@@ -1,5 +1,8 @@
 package au.com.foxsports.sydneyfc.controller;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.support.v4.view.ViewPager;
 
 import java.util.ArrayList;
@@ -27,11 +30,11 @@ public class MainController {
     public final static String API_KEY = "aaf6c0ce-a364-4e20-bc34-003a722274dc";
     private ViewPagerAdapter adapter;
 
-    public MainController(Callback<List<Player>> callback) {
-        doAPICall(callback);
+    public MainController()
+    {
     }
 
-    private void doAPICall(Callback<List<Player>> callback){
+    public void doAPICall(Callback<List<Player>> callback){
         ApiInterface apiService = ApiClient.getClient().create(ApiInterface.class);
         Call<List<Player>> call = apiService.getPlayers(API_KEY);
         call.enqueue(callback);
@@ -48,6 +51,13 @@ public class MainController {
         addFragmentToAdapter(team, "Goalkeeper");
         viewPager.setAdapter(adapter);
         return viewPager;
+    }
+
+    public boolean isNetworkAvailable(Context context) {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) context.getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
     private Team teamSort(Team team){

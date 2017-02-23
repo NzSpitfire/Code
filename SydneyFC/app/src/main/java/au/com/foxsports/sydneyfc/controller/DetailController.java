@@ -1,18 +1,9 @@
 package au.com.foxsports.sydneyfc.controller;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
-import android.util.Log;
-import android.widget.ImageView;
-import android.widget.TextView;
-
-import com.bumptech.glide.Glide;
-
-import au.com.foxsports.sydneyfc.R;
-import au.com.foxsports.sydneyfc.activity.DetailActivity;
-import au.com.foxsports.sydneyfc.adapter.StatAdapter;
 import au.com.foxsports.sydneyfc.model.Player;
 import au.com.foxsports.sydneyfc.rest.ApiClient;
 import au.com.foxsports.sydneyfc.rest.ApiInterface;
@@ -32,19 +23,25 @@ public class DetailController {
     public final static String API_KEY = "aaf6c0ce-a364-4e20-bc34-003a722274dc";
     public final static String URL = "http://media.foxsports.com.au/match-centre/includes/images/headshots/landscape/hal/";
 
-    public DetailController(Bundle bundle, Callback<Player> callback){
+    public DetailController(Bundle bundle){
 
         int playerID = bundle.getInt("playerID");
         playerPosition = bundle.getString("playerPosition");
         player = new Player(playerID);
-        doApiCall(playerID, callback);
 
     }
 
-    private void doApiCall(int playerID, Callback<Player> callback){
+    public void doApiCall(Callback<Player> callback){
         ApiInterface apiService = ApiClient.getClient().create(ApiInterface.class);
-        Call<Player> call = apiService.getPlayerStats(playerID,API_KEY);
+        Call<Player> call = apiService.getPlayerStats(player.getId(),API_KEY);
         call.enqueue(callback);
+    }
+
+    public boolean isNetworkAvailable(Context context) {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) context.getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
     public void setUpPlayerStats(Response<Player> response) {
