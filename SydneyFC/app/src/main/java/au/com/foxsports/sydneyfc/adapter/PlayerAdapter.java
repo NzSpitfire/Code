@@ -20,14 +20,13 @@ import au.com.foxsports.sydneyfc.model.Player;
 
 public class PlayerAdapter extends RecyclerView.Adapter<PlayerAdapter.PlayerViewHolder> {
 
-    private List<Player> players;
-    private int rowLayout;
-    private static Context context;
+    private List<Player> mPlayers;
+    private int mRowLayoutId;
+    private Context mCtx;
     OnItemClickListener mItemClickListener;
-    private static final String URL = "http://media.foxsports.com.au/match-centre/includes/images/headshots/landscape/hal/";
 
 
-    public static class PlayerViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+    public class PlayerViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         LinearLayout teamLayout;
         TextView playerName;
         ImageView playerImage;
@@ -43,21 +42,21 @@ public class PlayerAdapter extends RecyclerView.Adapter<PlayerAdapter.PlayerView
 
         @Override
         public void onClick(View v) {
-            ((MainActivity)context).showDetail(player);
+            ((MainActivity) mCtx).showDetail(player);
         }
     }
 
     public PlayerAdapter(List<Player> players, int rowLayout, Context context) {
-        this.players = players;
-        this.rowLayout = rowLayout;
-        this.context = context;
+        this.mPlayers = players;
+        this.mRowLayoutId = rowLayout;
+        this.mCtx = context;
 
     }
 
     @Override
     public PlayerAdapter.PlayerViewHolder onCreateViewHolder(ViewGroup parent,
                                                             int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(rowLayout, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(mRowLayoutId, parent, false);
         PlayerViewHolder playerViewHolder = new PlayerViewHolder(view);
         return playerViewHolder;
     }
@@ -65,16 +64,16 @@ public class PlayerAdapter extends RecyclerView.Adapter<PlayerAdapter.PlayerView
 
     @Override
     public void onBindViewHolder(PlayerViewHolder holder, final int position) {
-        holder.playerName.setText(players.get(position).getFullName());
-        holder.player = players.get(position);
-        Glide.with(context)
-                .load(URL + players.get(position).getId() + ".jpg")
+        holder.playerName.setText(mPlayers.get(position).getFullName());
+        holder.player = mPlayers.get(position);
+        Glide.with(mCtx)
+                .load(mCtx.getString(R.string.image_url) + mPlayers.get(position).getId() + ".jpg")
                 .placeholder(R.drawable.headshot_blank)
                 .into(holder.playerImage);
     }
 
     public interface OnItemClickListener {
-        public void onItemClick(View view, int position, String id);
+        void onItemClick(View view, int position, String id);
     }
 
     public void SetOnItemClickListener(final OnItemClickListener mItemClickListener) {
@@ -83,6 +82,6 @@ public class PlayerAdapter extends RecyclerView.Adapter<PlayerAdapter.PlayerView
 
     @Override
     public int getItemCount() {
-        return players.size();
+        return mPlayers.size();
     }
 }

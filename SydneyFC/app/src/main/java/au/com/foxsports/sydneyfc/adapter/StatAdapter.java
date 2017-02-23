@@ -17,9 +17,9 @@ import au.com.foxsports.sydneyfc.model.PlayerStatistics;
 
 public class StatAdapter extends RecyclerView.Adapter<StatAdapter.StatViewHolder> {
 
-    private PlayerStatistics playerStatistics;
-    private int rowLayout;
-    private Context context;
+    private PlayerStatistics mPlayerStatistics;
+    private int mRowLayoutId;
+    private Context mCtx;
 
 
     public static class StatViewHolder extends RecyclerView.ViewHolder{
@@ -35,15 +35,15 @@ public class StatAdapter extends RecyclerView.Adapter<StatAdapter.StatViewHolder
     }
 
     public StatAdapter(PlayerStatistics playerStatistics, int rowLayout, Context context) {
-        this.rowLayout = rowLayout;
-        this.context = context;
-        this.playerStatistics = playerStatistics;
+        this.mRowLayoutId = rowLayout;
+        this.mCtx = context;
+        this.mPlayerStatistics = playerStatistics;
     }
 
     @Override
     public StatAdapter.StatViewHolder onCreateViewHolder(ViewGroup parent,
                                                              int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(rowLayout, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(mRowLayoutId, parent, false);
         StatViewHolder statViewHolder = new StatViewHolder(view);
         return statViewHolder;
     }
@@ -51,14 +51,14 @@ public class StatAdapter extends RecyclerView.Adapter<StatAdapter.StatViewHolder
 
     @Override
     public void onBindViewHolder(StatViewHolder holder, final int position) {
-        holder.statType.setText(playerStatistics.getStatisticModelList().get(position).getType());
-        holder.statValue.setText(playerStatistics.getStatisticModelList().get(position).getValue());
+        holder.statType.setText(mPlayerStatistics.getStatisticModelList().get(position).getType());
+        holder.statValue.setText(mPlayerStatistics.getStatisticModelList().get(position).getValue());
     }
 
 
 
     @Override
     public int getItemCount() {
-        return playerStatistics.getStatisticModelList().size();
+        return mPlayerStatistics.getStatisticModelList().size();
     }
 }

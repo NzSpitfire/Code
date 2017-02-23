@@ -4,6 +4,8 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+
+import au.com.foxsports.sydneyfc.R;
 import au.com.foxsports.sydneyfc.model.Player;
 import au.com.foxsports.sydneyfc.rest.ApiClient;
 import au.com.foxsports.sydneyfc.rest.ApiInterface;
@@ -17,43 +19,31 @@ import retrofit2.Response;
 
 public class DetailController {
 
-    private Player player;
-    private String playerPosition;
+    private Player mPlayer;
+    private String mPlayerPosition;
+    private Context mCtx;
 
-    public final static String API_KEY = "aaf6c0ce-a364-4e20-bc34-003a722274dc";
-    public final static String URL = "http://media.foxsports.com.au/match-centre/includes/images/headshots/landscape/hal/";
-
-    public DetailController(Bundle bundle){
-
-        int playerID = bundle.getInt("playerID");
-        playerPosition = bundle.getString("playerPosition");
-        player = new Player(playerID);
-
+    public DetailController(Context context, Bundle bundle) {
+        mCtx = context;
+        int playerID = bundle.getInt(mCtx.getString(R.string.playerId));
+        mPlayerPosition = bundle.getString(mCtx.getString(R.string.player_position));
+        mPlayer = new Player(playerID);
     }
 
-    public void doApiCall(Callback<Player> callback){
+    public void doApiCall(Callback<Player> callback) {
         ApiInterface apiService = ApiClient.getClient().create(ApiInterface.class);
-        Call<Player> call = apiService.getPlayerStats(player.getId(),API_KEY);
+        Call<Player> call = apiService.getPlayerStats(mPlayer.getId(), mCtx.getString(R.string.api_key));
         call.enqueue(callback);
     }
 
-    public boolean isNetworkAvailable(Context context) {
-        ConnectivityManager connectivityManager
-                = (ConnectivityManager) context.getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
-    }
-
     public void setUpPlayerStats(Response<Player> response) {
-        if(response.body() != null) {
-            player = response.body();
-            player.setDefaultPosition(playerPosition);
-
-        }
-
+        if (response == null || response.body() == null)
+            throw new IllegalArgumentException();
+        mPlayer = response.body();
+        mPlayer.setDefaultPosition(mPlayerPosition);
     }
 
-    public Player getPlayer() {
-        return player;
+    public Player getmPlayer() {
+        return mPlayer;
     }
 }

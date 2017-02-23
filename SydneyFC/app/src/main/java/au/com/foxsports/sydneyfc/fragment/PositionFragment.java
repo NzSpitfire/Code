@@ -1,6 +1,5 @@
 package au.com.foxsports.sydneyfc.fragment;
 
-import android.content.Intent;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
@@ -11,10 +10,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import au.com.foxsports.sydneyfc.R;
-import au.com.foxsports.sydneyfc.activity.DetailActivity;
 import au.com.foxsports.sydneyfc.adapter.PlayerAdapter;
 import au.com.foxsports.sydneyfc.controller.PositionController;
 import au.com.foxsports.sydneyfc.model.Player;
@@ -25,10 +22,10 @@ import au.com.foxsports.sydneyfc.model.Player;
  */
 
 public class PositionFragment extends Fragment {
-    private PositionController controller;
+    private PositionController mPositionController;
 
     public PositionFragment() {
-        controller = new PositionController();
+        mPositionController = new PositionController();
     }
 
     @Override
@@ -40,7 +37,7 @@ public class PositionFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        if (controller.getPlayers() != null){
+        if (mPositionController.getPlayers() != null){
             setupRecyclerView().setAdapter(setupPlayerAdapter());
         }
     }
@@ -52,11 +49,11 @@ public class PositionFragment extends Fragment {
     }
 
     private PlayerAdapter setupPlayerAdapter(){
-        PlayerAdapter playerAdapter = new PlayerAdapter(new ArrayList<Player>(controller.getPlayers()), R.layout.list_item_player, getActivity());
+        PlayerAdapter playerAdapter = new PlayerAdapter(new ArrayList<Player>(mPositionController.getPlayers()),
+                R.layout.list_item_player, getActivity());
         playerAdapter.SetOnItemClickListener(new PlayerAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View v, int position, String id) {
-                System.out.println("onItemClick" + id);
             }
         });
         return playerAdapter;
@@ -69,14 +66,7 @@ public class PositionFragment extends Fragment {
         return inflater.inflate(R.layout.list_fragment, container, false);
     }
 
-    public void showDetail(Player player){
-        Intent intent = new Intent(getActivity(), DetailActivity.class);
-        intent.putExtra("playerID", player.getId());
-        intent.putExtra("playerPosition", player.getDefaultPosition());
-        startActivity(intent);
-    }
-
     public PositionController getController() {
-        return controller;
+        return mPositionController;
     }
 }

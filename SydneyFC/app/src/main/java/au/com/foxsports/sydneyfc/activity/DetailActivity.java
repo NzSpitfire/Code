@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import au.com.foxsports.sydneyfc.R;
+import au.com.foxsports.sydneyfc.Utils;
 import au.com.foxsports.sydneyfc.adapter.StatAdapter;
 import au.com.foxsports.sydneyfc.controller.DetailController;
 import au.com.foxsports.sydneyfc.model.Player;
@@ -28,11 +29,11 @@ import retrofit2.Response;
 
 public class DetailActivity extends AppCompatActivity {
 
-    private DetailController controller;
-    private Toolbar toolbar;
-    private TextView title;
-    private TextView positionTitle;
-    private ImageView imageView;
+    private DetailController mDetailController;
+    private Toolbar mToolbar;
+    private TextView mTitleTextView;
+    private TextView mPositionTitleTextView;
+    private ImageView mImageView;
 
     public static final String TAG = DetailActivity.class.getSimpleName();
     private ProgressDialog loadingDialog;
@@ -59,12 +60,12 @@ public class DetailActivity extends AppCompatActivity {
                 Log.e(DetailActivity.TAG, t.toString());
             }
         };
-        controller = new DetailController(bundle);
-        if(controller.isNetworkAvailable(getApplicationContext())){
-            controller.doApiCall(callback);
+        mDetailController = new DetailController(this, bundle);
+        if(Utils.isNetworkAvailable(this)){
+            mDetailController.doApiCall(callback);
         }
         else{
-            showErrorMessage("Network Error!","There was an issue connecting to the network, Please check your network settings.");
+            showErrorMessage(getString(R.string.network_error_title),getString(R.string.network_error_message));
         }
     }
 
@@ -72,35 +73,38 @@ public class DetailActivity extends AppCompatActivity {
     private void setUpPlayerStats(Response<Player> response) {
         loadingDialog.dismiss();
         if(response.body() != null) {
-            controller.setUpPlayerStats(response);
-            title.setText(controller.getPlayer().getFullName());
-            positionTitle.setText(controller.getPlayer().getDefaultPosition());
-            setImageView(imageView);
+            mDetailController.setUpPlayerStats(response);
+            mTitleTextView.setText(mDetailController.getmPlayer().getFullName());
+            mPositionTitleTextView.setText(mDetailController.getmPlayer().getDefaultPosition());
+            setImageView(mImageView);
             setupRecyclerView();
         }
         else{
-            showErrorMessage("Missing Player PlayerStatistics", "No PlayerStatistics were found for this player.");
+            showErrorMessage(getString(R.string.missing_player_stats_title), getString(R.string.missing_player_stats_msg));
         }
     }
 
     private void setupUI(){
         setContentView(R.layout.detail_activity);
 
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
-        title = (TextView) findViewById(R.id.toolbarTitle);
-        positionTitle = (TextView) findViewById(R.id.positionTitle);
-        imageView = (ImageView) findViewById(R.id.imageView);
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        mTitleTextView = (TextView) findViewById(R.id.toolbarTitle);
+        mPositionTitleTextView = (TextView) findViewById(R.id.positionTitle);
+        mImageView = (ImageView) findViewById(R.id.imageView);
 
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle("");
+        setSupportActionBar(mToolbar);
+        if(getSupportActionBar() != null){
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setTitle("");
+        }
     }
 
     private void setupRecyclerView(){
         final RecyclerView recyclerView = (RecyclerView) findViewById(R.id.stats_recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        if (controller.getPlayer().getPlayerStatistics() != null) {
-            StatAdapter statAdapter = new StatAdapter(controller.getPlayer().getPlayerStatistics(), R.layout.list_item_stat, getApplicationContext());
+        if (mDetailController.getmPlayer().getPlayerStatistics() != null) {
+            StatAdapter statAdapter = new StatAdapter(mDetailController.getmPlayer().getPlayerStatistics(),
+                    R.layout.list_item_stat, getApplicationContext());
             recyclerView.setAdapter(statAdapter);
         }
     }
@@ -108,15 +112,15 @@ public class DetailActivity extends AppCompatActivity {
 
     private void setImageView(ImageView imageView){
         Glide.with(this)
-                .load(DetailController.URL + controller.getPlayer().getId() + ".jpg")
+                .load(getString(R.string.image_url) + mDetailController.getmPlayer().getId() + ".jpg")
                 .placeholder(R.drawable.headshot_blank)
                 .into(imageView);
     }
 
     private void showLoadiDialog(){
         loadingDialog = new ProgressDialog(this);
-        loadingDialog.setMessage("Loading..");
-        loadingDialog.setTitle("Getting Player Player Statistics");
+        loadingDialog.setMessage(getString(R.string.loading_msg));
+        loadingDialog.setTitle(getString(R.string.loading_title));
         loadingDialog.setIndeterminate(false);
         loadingDialog.setCancelable(true);
         loadingDialog.show();
@@ -126,7 +130,7 @@ public class DetailActivity extends AppCompatActivity {
         AlertDialog alertDialog = new AlertDialog.Builder(this).create();
         alertDialog.setTitle(title);
         alertDialog.setMessage(message);
-        alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "OK",
+        alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, getString(R.string.btn_ok),
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();

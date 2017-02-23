@@ -12,6 +12,7 @@ import android.util.Log;
 import android.widget.TextView;
 import java.util.List;
 import au.com.foxsports.sydneyfc.R;
+import au.com.foxsports.sydneyfc.Utils;
 import au.com.foxsports.sydneyfc.adapter.ViewPagerAdapter;
 import au.com.foxsports.sydneyfc.controller.MainController;
 import au.com.foxsports.sydneyfc.model.Player;
@@ -25,11 +26,11 @@ import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
 
-    private Toolbar toolbar;
-    private TabLayout tabLayout;
-    private ViewPager viewPager;
+    private Toolbar mToolbar;
+    private TabLayout mtTbLayout;
+    private ViewPager mViewPager;
     private static final String TAG = MainActivity.class.getSimpleName();
-    private MainController controller;
+    private MainController mMainController;
 
 
 
@@ -44,50 +45,52 @@ public class MainActivity extends AppCompatActivity {
         Callback<List<Player>> callback = new Callback<List<Player>>() {
             @Override
             public void onResponse(Call<List<Player>> call, Response<List<Player>> response) {
-                setupViewPager(viewPager, response);
+                setupViewPager(mViewPager, response);
             }
 
             @Override
             public void onFailure(Call<List<Player>> call, Throwable t) {
                 Log.e(TAG, t.toString());
+                showErrorMessage("Error",t.toString());
+
             }
         };
 
-        controller = new MainController();
-        if(controller.isNetworkAvailable(getApplicationContext())){
-            controller.doAPICall(callback);
+        mMainController = new MainController(this);
+        if(Utils.isNetworkAvailable(this)){
+            mMainController.doAPICall(callback);
         }
         else{
-            showErrorMessage("Network Error!","There was an issue connecting to the network, Please check your network settings.");
+            showErrorMessage(getString(R.string.network_error_title),getString(R.string.network_error_message));
         }
     }
 
     private void setupUI(){
         setContentView(R.layout.activity_main);
 
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
-        viewPager = (ViewPager) findViewById(R.id.viewpager);
-        tabLayout = (TabLayout) findViewById(R.id.tabs);
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        mViewPager = (ViewPager) findViewById(R.id.viewpager);
+        mtTbLayout = (TabLayout) findViewById(R.id.tabs);
 
-        setSupportActionBar(toolbar);
+        setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         getSupportActionBar().setTitle("");
 
         TextView title = (TextView) findViewById(R.id.appTitle);
-        title.setText("Sydney FC");
+        title.setText(R.string.app_name);
 
     }
 
     private void setupViewPager(ViewPager viewPager, Response<List<Player>> response) {
-        ViewPager pager = controller.setupViewPager(new ViewPagerAdapter(getSupportFragmentManager()),viewPager,response);
-        tabLayout.setupWithViewPager(pager);
+        ViewPager pager = mMainController.setupViewPager(new ViewPagerAdapter(getSupportFragmentManager()),viewPager,response);
+        mtTbLayout.setupWithViewPager(pager);
     }
 
 
     public void showDetail(Player player){
         Intent intent = new Intent(this, DetailActivity.class);
-        intent.putExtra("playerID", player.getId());
-        intent.putExtra("playerPosition", player.getDefaultPosition());
+        intent.putExtra(getString(R.string.playerId), player.getId());
+        intent.putExtra(getString(R.string.player_position), player.getDefaultPosition());
         startActivity(intent);
     }
 

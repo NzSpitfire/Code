@@ -1,3 +1,18 @@
 <resources>
     <string name="app_name">Sydney FC</string>
+    <string name="api_key">aaf6c0ce-a364-4e20-bc34-003a722274dc</string>
+    <string name="image_url">http://media.foxsports.com.au/match-centre/includes/images/headshots/landscape/hal/</string>
+    <string name="network_error_message">There was an issue connecting to the network, Please check your network settings.</string>
+    <string name="network_error_title">Network Error</string>
+    <string name="playerId">playerID</string>
+    <string name="player_position">playerPosition</string>
+    <string name="missing_player_stats_title">Missing Player Statistics</string>
+    <string name="missing_player_stats_msg">No Player Statistics were found for this player.</string>
+    <string name="loading_msg">Loading...</string>
+    <string name="loading_title">Getting Player Statistics</string>
+    <string name="btn_ok">OK</string>
+    <string name="position_forward">Forward</string>
+    <string name="position_midfielder">Midfielder</string>
+    <string name="position_defender">Defender</string>
+    <string name="position_goalkeeper">Goalkeeper</string>
 </resources>

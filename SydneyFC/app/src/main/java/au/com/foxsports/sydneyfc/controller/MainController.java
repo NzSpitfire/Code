@@ -1,8 +1,6 @@
 package au.com.foxsports.sydneyfc.controller;
 
 import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.support.v4.view.ViewPager;
 
 import java.util.ArrayList;
@@ -11,6 +9,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
+import au.com.foxsports.sydneyfc.R;
 import au.com.foxsports.sydneyfc.adapter.ViewPagerAdapter;
 import au.com.foxsports.sydneyfc.fragment.PositionFragment;
 import au.com.foxsports.sydneyfc.model.Player;
@@ -27,42 +26,35 @@ import retrofit2.Response;
 
 public class MainController {
 
-    public final static String API_KEY = "aaf6c0ce-a364-4e20-bc34-003a722274dc";
-    private ViewPagerAdapter adapter;
+    private ViewPagerAdapter mAdapter;
+    private Context mCtx;
 
-    public MainController()
+    public MainController(Context context)
     {
+        this.mCtx = context;
     }
 
     public void doAPICall(Callback<List<Player>> callback){
         ApiInterface apiService = ApiClient.getClient().create(ApiInterface.class);
-        Call<List<Player>> call = apiService.getPlayers(API_KEY);
+        Call<List<Player>> call = apiService.getPlayers(mCtx.getString(R.string.api_key));
         call.enqueue(callback);
     }
 
     public ViewPager setupViewPager(ViewPagerAdapter adapter, ViewPager viewPager, Response<List<Player>> response) {
-        this.adapter = adapter;
+        this.mAdapter = adapter;
         List<Player> players = response.body();
         Team team = new Team(players);
         team = teamSort(team);
-        addFragmentToAdapter(team, "Forward");
-        addFragmentToAdapter(team, "Midfielder");
-        addFragmentToAdapter(team, "Defender");
-        addFragmentToAdapter(team, "Goalkeeper");
+        addFragmentToAdapter(team, mCtx.getString(R.string.position_forward));
+        addFragmentToAdapter(team, mCtx.getString(R.string.position_midfielder));
+        addFragmentToAdapter(team, mCtx.getString(R.string.position_defender));
+        addFragmentToAdapter(team, mCtx.getString(R.string.position_goalkeeper));
         viewPager.setAdapter(adapter);
         return viewPager;
     }
 
-    public boolean isNetworkAvailable(Context context) {
-        ConnectivityManager connectivityManager
-                = (ConnectivityManager) context.getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
-    }
-
     private Team teamSort(Team team){
-        Team newTeam = team;
-        newTeam.setPlayerByPosition(new HashMap<String, List<Player>>());
+        team.setPlayerByPosition(new HashMap<String, List<Player>>());
 
         List<Player> playersList = team.getPlayersList();
         Collections.sort(playersList, new Comparator<Player>()
@@ -75,13 +67,13 @@ public class MainController {
         });
 
         for (Player player:playersList) {
-            List<Player> list = newTeam.getPlayerByPosition().get(player.getDefaultPosition());
+            List<Player> list = team.getPlayerByPosition().get(player.getDefaultPosition());
             if(list == null){
                 list = new ArrayList<>();
             }
             if (!player.getDefaultPosition().equals("")){
                 list.add(player);
-                newTeam.getPlayerByPosition().put(player.getDefaultPosition(),list);
+                team.getPlayerByPosition().put(player.getDefaultPosition(),list);
             }
 
         }
@@ -91,7 +83,7 @@ public class MainController {
     private void addFragmentToAdapter(Team team, String position){
         PositionFragment positionFragment = new PositionFragment();
         positionFragment.getController().setPlayers(team.getPlayerByPosition().get(position));
-        adapter.addFragment(positionFragment, position);
+        mAdapter.addFragment(positionFragment, position);
     }
 
 }
