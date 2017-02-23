@@ -12,13 +12,12 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
+
 import com.bumptech.glide.Glide;
 import au.com.foxsports.sydneyfc.R;
 import au.com.foxsports.sydneyfc.adapter.StatAdapter;
+import au.com.foxsports.sydneyfc.controller.DetailController;
 import au.com.foxsports.sydneyfc.model.Player;
-import au.com.foxsports.sydneyfc.rest.ApiClient;
-import au.com.foxsports.sydneyfc.rest.ApiInterface;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -28,36 +27,25 @@ import retrofit2.Response;
  */
 
 public class DetailActivity extends AppCompatActivity {
-    private Player player;
-    private String playerPosition;
+
+    private DetailController controller;
     private Toolbar toolbar;
     private TextView title;
     private TextView positionTitle;
     private ImageView imageView;
-    private final static String API_KEY = "aaf6c0ce-a364-4e20-bc34-003a722274dc";
-    private final static String URL = "http://media.foxsports.com.au/match-centre/includes/images/headshots/landscape/hal/";
-    private static final String TAG = DetailActivity.class.getSimpleName();
+
+    public static final String TAG = DetailActivity.class.getSimpleName();
     private ProgressDialog loadingDialog;
 
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        loadingDialog = new ProgressDialog(this);
-        loadingDialog.setMessage("Loading..");
-        loadingDialog.setTitle("Getting Player Stats");
-        loadingDialog.setIndeterminate(false);
-        loadingDialog.setCancelable(true);
-        loadingDialog.show();
-
         Bundle bundle = getIntent().getExtras();
-        int playerID = bundle.getInt("playerID");
-        playerPosition = bundle.getString("playerPosition");
-        player = new Player(playerID);
+        showLoadiDialog();
+        setupUI();
 
-        ApiInterface apiService = ApiClient.getClient().create(ApiInterface.class);
-        Call<Player> call = apiService.getPlayerStats(player.getId(),API_KEY);
-        call.enqueue(new Callback<Player>() {
+        Callback callback = new Callback<Player>() {
             @Override
             public void onResponse(Call<Player> call, Response<Player> response) {
                 setUpPlayerStats(response);
@@ -65,57 +53,84 @@ public class DetailActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<Player> call, Throwable t) {
-                Log.e(TAG, t.toString());
+                Log.e(DetailActivity.TAG, t.toString());
             }
-        });
+        };
+        controller = new DetailController(bundle,callback);
+
+    }
+
+
+    private void setUpPlayerStats(Response<Player> response) {
+        loadingDialog.dismiss();
+        if(response.body() != null) {
+            controller.setUpPlayerStats(response);
+            title.setText(controller.getPlayer().getFullName());
+            positionTitle.setText(controller.getPlayer().getDefaultPosition());
+            setImageView(imageView);
+            setupRecyclerView();
+        }
+        else{
+            showErrorMessage();
+        }
+    }
+
+    private void setupUI(){
+        setContentView(R.layout.detail_activity);
+
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        title = (TextView) findViewById(R.id.toolbarTitle);
+        positionTitle = (TextView) findViewById(R.id.positionTitle);
+        imageView = (ImageView) findViewById(R.id.imageView);
+
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle("");
+    }
+
+    private void setupRecyclerView(){
+        final RecyclerView recyclerView = (RecyclerView) findViewById(R.id.stats_recycler_view);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        if (controller.getPlayer().getPlayerStatistics() != null) {
+            StatAdapter statAdapter = new StatAdapter(controller.getPlayer().getPlayerStatistics(), R.layout.list_item_stat, getApplicationContext());
+            recyclerView.setAdapter(statAdapter);
+        }
+    }
+
+
+    private void setImageView(ImageView imageView){
+        Glide.with(this)
+                .load(DetailController.URL + controller.getPlayer().getId() + ".jpg")
+                .placeholder(R.drawable.headshot_blank)
+                .into(imageView);
+    }
+
+    private void showLoadiDialog(){
+        loadingDialog = new ProgressDialog(this);
+        loadingDialog.setMessage("Loading..");
+        loadingDialog.setTitle("Getting Player PlayerStatistics");
+        loadingDialog.setIndeterminate(false);
+        loadingDialog.setCancelable(true);
+        loadingDialog.show();
+    }
+
+    private void showErrorMessage(){
+        AlertDialog alertDialog = new AlertDialog.Builder(this).create();
+        alertDialog.setTitle("Missing Player PlayerStatistics");
+        alertDialog.setMessage("No PlayerStatistics were found for this player.");
+        alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        finish();
+                    }
+                });
+        alertDialog.show();
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         finish();
         return super.onOptionsItemSelected(item);
-    }
-
-    private void setUpPlayerStats(Response<Player> response) {
-        loadingDialog.dismiss();
-        setContentView(R.layout.detail_activity);
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
-        title = (TextView) findViewById(R.id.toolbarTitle);
-        positionTitle = (TextView) findViewById(R.id.positionTitle);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle("");
-        imageView = (ImageView) findViewById(R.id.imageView);
-        if(response.body() != null) {
-            player = response.body();
-            player.setDefaultPosition(playerPosition);
-            title.setText(player.getFullName());
-            positionTitle.setText(player.getDefaultPosition());
-
-            Glide.with(this)
-                    .load(URL + player.getId() + ".jpg")
-                    .placeholder(R.drawable.headshot_blank)
-                    .into(imageView);
-
-            final RecyclerView recyclerView = (RecyclerView) findViewById(R.id.stats_recycler_view);
-            recyclerView.setLayoutManager(new LinearLayoutManager(this));
-            if (player.getStats() != null) {
-                StatAdapter statAdapter = new StatAdapter(player.getStats(), R.layout.list_item_stat, getApplicationContext());
-                recyclerView.setAdapter(statAdapter);
-            }
-        }
-        else{
-            AlertDialog alertDialog = new AlertDialog.Builder(this).create();
-            alertDialog.setTitle("Missing Player Stats");
-            alertDialog.setMessage("No Stats were found for this player.");
-            alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
-                    new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
-                            finish();
-                        }
-                    });
-            alertDialog.show();
-        }
     }
 }

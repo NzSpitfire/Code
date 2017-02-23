@@ -71,9 +71,6 @@ public class PlayerAdapter extends RecyclerView.Adapter<PlayerAdapter.PlayerView
                 .load(URL + players.get(position).getId() + ".jpg")
                 .placeholder(R.drawable.headshot_blank)
                 .into(holder.playerImage);
-
-
-
     }
 
     public interface OnItemClickListener {

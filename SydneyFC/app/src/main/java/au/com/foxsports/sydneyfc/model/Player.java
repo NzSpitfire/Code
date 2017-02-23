@@ -24,7 +24,7 @@ public class Player {
     private String surname;
     @SerializedName("stats")
     @Expose
-    private Stats stats;
+    private PlayerStatistics playerStatistics;
     @SerializedName("full_name")
     @Expose
     private String fullName;
@@ -46,6 +46,7 @@ public class Player {
         this.otherNames = otherNames;
         this.defaultPosition = defaultPosition;
     }
+
 
     public Player(Integer id) {
         this.id = id;
@@ -83,12 +84,12 @@ public class Player {
         this.surname = surname;
     }
 
-    public Stats getStats() {
-        return stats;
+    public PlayerStatistics getPlayerStatistics() {
+        return playerStatistics;
     }
 
-    public void setStats(Stats stats) {
-        this.stats = stats;
+    public void setPlayerStatistics(PlayerStatistics playerStatistics) {
+        this.playerStatistics = playerStatistics;
     }
 
     public String getFullName() {

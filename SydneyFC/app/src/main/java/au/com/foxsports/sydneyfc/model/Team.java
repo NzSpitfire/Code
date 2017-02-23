@@ -32,31 +32,9 @@ public class Team {
     @Expose
     private String shortName;
 
-
     public Team(List<Player> playersList) {
         this.playersList = playersList;
-        playerByPosition = new HashMap<>();
-        Collections.sort(playersList, new Comparator<Player>()
-        {
-            @Override
-            public int compare(Player player1, Player player2)
-            {
-                return player1.getSurname().compareToIgnoreCase(player2.getSurname());
-            }
-        });
-        for (Player player:playersList) {
-            List<Player> list = playerByPosition.get(player.getDefaultPosition());
-            if(list == null){
-                list = new ArrayList<>();
-            }
-            if (!player.getDefaultPosition().equals("")){
-                list.add(player);
-                playerByPosition.put(player.getDefaultPosition(),list);
-            }
-
-        }
     }
-
 
     public Integer getId() {
         return id;

@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import au.com.foxsports.sydneyfc.R;
-import au.com.foxsports.sydneyfc.model.Stats;
+import au.com.foxsports.sydneyfc.model.PlayerStatistics;
 
 /**
  * Created by bclark on 22/02/17.
@@ -17,7 +17,7 @@ import au.com.foxsports.sydneyfc.model.Stats;
 
 public class StatAdapter extends RecyclerView.Adapter<StatAdapter.StatViewHolder> {
 
-    private Stats stats;
+    private PlayerStatistics playerStatistics;
     private int rowLayout;
     private Context context;
 
@@ -34,10 +34,10 @@ public class StatAdapter extends RecyclerView.Adapter<StatAdapter.StatViewHolder
 
     }
 
-    public StatAdapter(Stats stats, int rowLayout, Context context) {
+    public StatAdapter(PlayerStatistics playerStatistics, int rowLayout, Context context) {
         this.rowLayout = rowLayout;
         this.context = context;
-        this.stats = stats;
+        this.playerStatistics = playerStatistics;
     }
 
     @Override
@@ -51,14 +51,14 @@ public class StatAdapter extends RecyclerView.Adapter<StatAdapter.StatViewHolder
 
     @Override
     public void onBindViewHolder(StatViewHolder holder, final int position) {
-        holder.statType.setText(stats.getStatList().get(position).getType());
-        holder.statValue.setText(stats.getStatList().get(position).getValue());
+        holder.statType.setText(playerStatistics.getStatisticModelList().get(position).getType());
+        holder.statValue.setText(playerStatistics.getStatisticModelList().get(position).getValue());
     }
 
 
 
     @Override
     public int getItemCount() {
-        return stats.getStatList().size();
+        return playerStatistics.getStatisticModelList().size();
     }
 }
