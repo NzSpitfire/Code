@@ -1,8 +1,11 @@
 <resources>
-
     <!-- Base application theme. -->
     <style name="MyMaterialTheme" parent="MyMaterialTheme.Base">
 
+    </style>
+
+    <style name="SplashTheme" parent="MyMaterialTheme.Base">
+        <item name="android:windowBackground">@drawable/background_splash</item>
     </style>
 
     <style name="MyMaterialTheme.Base" parent="Theme.AppCompat.Light.DarkActionBar">
